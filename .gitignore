@@ -26,5 +26,9 @@ hs_err_pid*
 .idea
 *.iml
 
+#build
+.gradle
+out
+
 # data
 data/mysql/

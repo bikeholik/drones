@@ -1,4 +1,4 @@
-package com.github.bikeholik.drones.dispatcher;
+package com.github.bikeholik.drones.dispatcher.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

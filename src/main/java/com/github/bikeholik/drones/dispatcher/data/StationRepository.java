@@ -1,4 +1,4 @@
-package com.github.bikeholik.drones.dispatcher;
+package com.github.bikeholik.drones.dispatcher.data;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
