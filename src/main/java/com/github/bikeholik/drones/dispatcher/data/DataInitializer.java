@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.util.StringUtils.trimLeadingCharacter;
 import static org.springframework.util.StringUtils.trimTrailingCharacter;
@@ -23,36 +25,42 @@ import static org.springframework.util.StringUtils.trimTrailingCharacter;
 class DataInitializer {
     private final DataInitializerProperties initializerProperties;
     private final StationRepository stationRepository;
-    private final DronLocationRepository dronLocationRepository;
+    private final DroneLocationRepository droneLocationRepository;
 
     @PostConstruct
     @SneakyThrows
     public void init() {
         if (!initializerProperties.isAlwaysLoadLocationsEnabled()) {
-            if (dronLocationRepository.count() > 0) {
+            if (droneLocationRepository.count() > 0) {
                 log.info("Data already loaded");
                 return;
             }
         }
-        Files.list(Path.of(initializerProperties.getDataDirPath()))
+        Stream.ofNullable(initializerProperties.getDataDirPath())
+                .flatMap(this::getDataFiles)
                 .forEach(this::load);
+    }
+
+    @SneakyThrows
+    private Stream<Path> getDataFiles(String path) {
+        return Files.list(Path.of(path));
     }
 
     private void load(Path path) {
         if (Objects.equals(initializerProperties.getStationsFileName(), path.getFileName().toFile().getName())) {
             loadStations(path);
         } else {
-            loadDronLocations(path);
+            loadDroneLocations(path);
         }
     }
 
-    private void loadDronLocations(Path path) {
-        List<DronLocation> locations = parse(path, chunks -> chunks.length >= 3, chunks -> DronLocation.builder()
-                .dronId(Long.parseLong(chunks[0]))
+    private void loadDroneLocations(Path path) {
+        List<DroneLocation> locations = parse(path, chunks -> chunks.length >= 3, chunks -> DroneLocation.builder()
+                .droneId(Long.parseLong(chunks[0]))
                 .latitude(parseCoordinate(1, chunks))
                 .longitude(parseCoordinate(2, chunks))
                 .build());
-        dronLocationRepository.saveAll(locations);
+        droneLocationRepository.saveAll(locations);
     }
 
     private void loadStations(Path path) {

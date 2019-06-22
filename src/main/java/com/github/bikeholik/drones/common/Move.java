@@ -1,4 +1,4 @@
-package com.github.bikeholik.drones.dispatcher.data;
+package com.github.bikeholik.drones.common;
 
 import java.util.List;
 

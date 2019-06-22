@@ -15,12 +15,12 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @Builder
 @Getter
-class DronLocation {
+class DroneLocation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long dronId;
+    private Long droneId;
     private double latitude;
     private double longitude;
 

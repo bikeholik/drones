@@ -10,4 +10,5 @@ import org.springframework.context.annotation.Configuration;
 public class DroneProperties {
     private int maxScanRangesInMeters = 350;
     private double speedInMetersPerSecond = 10;
+    private int memorySize = 10;
 }

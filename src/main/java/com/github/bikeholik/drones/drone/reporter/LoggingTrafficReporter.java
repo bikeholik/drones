@@ -1,4 +1,4 @@
-package com.github.bikeholik.drones.dron.reporter;
+package com.github.bikeholik.drones.drone.reporter;
 
 import lombok.extern.slf4j.Slf4j;
 
