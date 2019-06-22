@@ -1,4 +1,4 @@
-package com.github.bikeholik.drones.drone;
+package com.github.bikeholik.drones.dron;
 
 import com.github.bikeholik.drones.common.DronRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,15 +23,34 @@ class DronesManager implements SmartLifecycle {
     @Override
     public void start() {
         dronRepository.findDistinctDronIds().stream()
-                .forEach(id -> log.info("Starting dron {}", id));
+                .peek(id -> log.info("Starting dron {}", id))
+                .map(this::createDron)
+                .forEach(executorService::execute);
         running = true;
+    }
+
+    private Runnable createDron(Long id) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.currentThread().isInterrupted()){
+                    log.info("{} flying...", id);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        log.info("Interrupted");
+                        return;
+                    }
+                }
+            }
+        };
     }
 
     @Override
     @SneakyThrows
     public void stop() {
         log.info("Stopping drones...");
-        executorService.shutdown();
+        executorService.shutdownNow();
         executorService.awaitTermination(1, TimeUnit.MINUTES);
         running = false;
     }
