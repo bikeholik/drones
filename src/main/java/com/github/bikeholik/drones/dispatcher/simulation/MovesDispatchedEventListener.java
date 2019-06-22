@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Slf4j
 class MovesDispatchedEventListener implements ApplicationContextAware {
-    private final AtomicInteger atomicInteger = new AtomicInteger(0);
+    private final AtomicInteger noMoreMovesCounter = new AtomicInteger(-1);
     private ApplicationContext applicationContext;
 
     @EventListener
@@ -22,16 +22,22 @@ class MovesDispatchedEventListener implements ApplicationContextAware {
     public void handle(MovesDispatchedEvent event) {
         log.debug("{}", event.getSource());
 
-        if (event.getDetails().getMovesCount() > 0) {
-            atomicInteger.set(0);
+        if (anyMovesDispatched(event)) {
+            noMoreMovesCounter.set(0);
         } else {
-            if (atomicInteger.incrementAndGet() > 2) {
+            if (noMoreMovesCounter.get() >= 0 && noMoreMovesCounter.incrementAndGet() > 5) {
                 log.debug("Closing application...");
                 if (applicationContext instanceof ConfigurableApplicationContext) {
                     ((ConfigurableApplicationContext) applicationContext).close();
+                } else {
+                    log.warn("Cannot close application of type {}", applicationContext.getClass());
                 }
             }
         }
+    }
+
+    private boolean anyMovesDispatched(MovesDispatchedEvent event) {
+        return event.getDetails().getMovesCount() > 0;
     }
 
     @Override
