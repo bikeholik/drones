@@ -17,7 +17,9 @@ class DispatcherController {
     private final MoveRepository moveRepository;
 
     @GetMapping("/v1/drones/{dronId}/moves")
-    List<Move> getMoves(@PathVariable Long dronId, @RequestParam(value = "lastSeenId", required = false, defaultValue = "0") Long lastSeenId) {
-        return moveRepository.getMoves(dronId, lastSeenId, 10, 350);
+    List<Move> getMoves(@PathVariable Long dronId,
+                        @RequestParam(value = "lastSeenId", required = false, defaultValue = "0") Long lastSeenId,
+                        @RequestParam(value = "maxResults", required = false, defaultValue = "10") Integer maxResults) {
+        return moveRepository.getMoves(dronId, lastSeenId, maxResults, 350);
     }
 }
