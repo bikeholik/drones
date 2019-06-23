@@ -6,13 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,7 +53,7 @@ class DataInitializer {
     }
 
     private void loadDroneLocations(Path path) {
-        List<DroneLocation> locations = parse(path, chunks -> chunks.length >= 3, chunks -> DroneLocation.builder()
+        List<DroneLocation> locations = parse(path, chunks -> DroneLocation.builder()
                 .droneId(Long.parseLong(chunks[0]))
                 .latitude(parseCoordinate(1, chunks))
                 .longitude(parseCoordinate(2, chunks))
@@ -64,7 +62,7 @@ class DataInitializer {
     }
 
     private void loadStations(Path path) {
-        List<Station> stations = parse(path, chunks -> chunks.length == 3, chunks -> Station.builder()
+        List<Station> stations = parse(path, chunks -> Station.builder()
                 .name(trim(chunks[0]))
                 .latitude(parseCoordinate(1, chunks))
                 .longitude(parseCoordinate(2, chunks))
@@ -77,12 +75,20 @@ class DataInitializer {
     }
 
     @SneakyThrows
-    private <T> List<T> parse(Path path, Predicate<String[]> validator, Function<String[], T> mapper) {
+    private <T> List<T> parse(Path path, Function<String[], T> mapper) {
         return Files.readAllLines(path).stream()
                 .map(line -> line.split(","))
-                .filter(validator)
-                .map(mapper)
+                .flatMap(chunks -> parse(chunks, mapper))
                 .collect(Collectors.toList());
+    }
+
+    private <T> Stream<T> parse(String[] chunks, Function<String[], T> mapper) {
+        try{
+            return Stream.of(mapper.apply(chunks));
+        }catch (Exception e){
+            log.error("Error parsing: '{}'", chunks, e);
+            return Stream.empty();
+        }
     }
 
     private double parseCoordinate(int index, String[] chunks) {
