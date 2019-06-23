@@ -5,12 +5,12 @@ Prerequisites:
  - docker-compose 1.23+
  - java 9+
  
- Start with
+ Build and start the environment with:
  ```
  docker-compose up --force-recreate -d  --build
  ```
  
- See the logs with
+ When application is built and container is started see the logs with:
  ```
  docker logs -f drones-app
  ```
