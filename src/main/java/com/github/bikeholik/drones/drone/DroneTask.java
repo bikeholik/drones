@@ -40,7 +40,7 @@ class DroneTask implements Runnable {
     }
 
     private void simulateFlight(Duration duration) {
-        log.debug("[{}] Sleep for {}", droneTaskProperties.getId(), duration);
+        log.debug("[{}] Sleeping for {}", droneTaskProperties.getId(), duration);
         try {
             Thread.sleep(duration.toMillis());
         } catch (InterruptedException e) {

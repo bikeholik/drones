@@ -27,7 +27,7 @@ class DroneService {
         AtomicReference<Move> previousMove = new AtomicReference<>(lastMove);
         movesProvider.getMoves(droneTaskProperties.getId(), Optional.ofNullable(previousMove.get()).map(Move::getId).orElse(null), droneTaskProperties.getMemorySize())
                 .stream()
-                .peek(move -> log.info("[{}] flying to [{}, {}]", droneTaskProperties.getId(), move.getLatitude(), move.getLongitude()))
+                .peek(move -> log.info("[{}] Flying to [{}, {}]", droneTaskProperties.getId(), move.getLatitude(), move.getLongitude()))
                 .peek(move -> Optional.ofNullable(previousMove.get())
                         .ifPresent(from -> calculateDistanceAndFly(from, move, droneTaskProperties, flightTimeHandler)))
                 .peek(move -> scanTrafficIfNecessary(move, droneTaskProperties))

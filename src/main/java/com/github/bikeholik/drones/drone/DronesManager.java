@@ -28,22 +28,8 @@ class DronesManager implements SmartLifecycle {
 
     @Override
     public void start() {
-        CustomizableThreadFactory threadFactory = new CustomizableThreadFactory("drone-") {
-            @Override
-            public Thread createThread(Runnable runnable) {
-                Thread thread = super.createThread(runnable);
-                thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        log.error("Error in {}", thread, e);
-                    }
-                });
-                return thread;
-            }
-        };
-
         List<Long> droneIds = droneRepository.findDistinctDroneIds();
-        executorService = Executors.newFixedThreadPool(droneIds.size(), threadFactory);
+        executorService = Executors.newFixedThreadPool(droneIds.size(), new CustomizableThreadFactory("drone-"));
         droneIds.stream()
                 .peek(id -> log.info("Starting drone with id {}", id))
                 .map(this::createDrone)
