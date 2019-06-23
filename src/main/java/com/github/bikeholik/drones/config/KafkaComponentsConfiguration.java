@@ -2,14 +2,16 @@ package com.github.bikeholik.drones.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.bikeholik.drones.common.Constants;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -41,7 +43,20 @@ class KafkaComponentsConfiguration {
     }
 
     @Bean
-    NewTopic trafficReportsTopic(){
+    NewTopic trafficReportsTopic() {
         return new NewTopic(TOPIC_TRAFFIC_REPORTS, 1, (short) 1);
+    }
+
+    @Bean
+    BeanPostProcessor kafkaAdminBeanPostProcessor() {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+                if (bean instanceof KafkaAdmin) {
+                    ((KafkaAdmin) bean).setOperationTimeout(120);
+                }
+                return bean;
+            }
+        };
     }
 }

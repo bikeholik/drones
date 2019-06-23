@@ -30,7 +30,7 @@ class DataInitializer {
     public void init() {
         if (!initializerProperties.isAlwaysLoadLocationsEnabled()) {
             if (droneLocationRepository.count() > 0) {
-                log.info("Data already loaded");
+                log.debug("Data already loaded");
                 return;
             }
         }
