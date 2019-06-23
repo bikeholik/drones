@@ -8,12 +8,14 @@ services:
 #      context: .
 #    container_name: drones-app
 #    depends_on:
-##      - kafka
+#      - kafka
 #      - mysql
 #    ports:
 #      - "18080:8080"
 #    networks:
 #      - drones-net
+#    volumes:
+#      - ./data/init:/data
 
   mysql:
     image: mysql:8.0.16
