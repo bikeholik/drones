@@ -9,6 +9,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,14 +20,31 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Slf4j
 class DronesManager implements SmartLifecycle {
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10, new CustomizableThreadFactory("drone-"));
     private final DroneRepository droneRepository;
     private final DroneProperties droneProperties;
+    private final DroneService droneService;
+    private ExecutorService executorService;
     private volatile boolean running;
 
     @Override
     public void start() {
-        droneRepository.findDistinctDroneIds().stream()
+        CustomizableThreadFactory threadFactory = new CustomizableThreadFactory("drone-") {
+            @Override
+            public Thread createThread(Runnable runnable) {
+                Thread thread = super.createThread(runnable);
+                thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread t, Throwable e) {
+                        log.error("Error in {}", thread, e);
+                    }
+                });
+                return thread;
+            }
+        };
+
+        List<Long> droneIds = droneRepository.findDistinctDroneIds();
+        executorService = Executors.newFixedThreadPool(droneIds.size(), threadFactory);
+        droneIds.stream()
                 .peek(id -> log.info("Starting drone with id {}", id))
                 .map(this::createDrone)
                 .forEach(executorService::execute);
@@ -35,11 +53,12 @@ class DronesManager implements SmartLifecycle {
 
     private Runnable createDrone(Long id) {
         Random random = ThreadLocalRandom.current();
-        return Drone.builder()
-                .droneProperties(Drone.DroneProperties.of(
+        return DroneTask.builder()
+                .droneTaskProperties(DroneTaskProperties.of(
                         id,
                         droneProperties.getSpeedInMetersPerSecond() + random.nextInt(5),
                         droneProperties.getMemorySize() - random.nextInt(3)))
+                .droneService(droneService)
                 .build();
     }
 

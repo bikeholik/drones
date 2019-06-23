@@ -17,8 +17,8 @@ class DispatcherService {
     private final DroneProperties droneProperties;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    List<Move> getMoves(Long droneId, Long lastSeenId, Integer maxResults) {
-        List<Move> moves = moveRepository.getMoves(droneId, lastSeenId, maxResults, droneProperties.getMaxScanRangesInMeters());
+    List<Move> getMoves(Long droneId, Long lastMoveId, Integer maxResults) {
+        List<Move> moves = moveRepository.getMoves(droneId, lastMoveId, maxResults, droneProperties.getMaxScanRangesInMeters());
         applicationEventPublisher.publishEvent(new MovesDispatchedEvent(droneId, moves.size()));
         return moves;
     }

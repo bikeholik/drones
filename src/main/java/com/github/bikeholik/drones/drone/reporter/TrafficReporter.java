@@ -1,5 +1,7 @@
 package com.github.bikeholik.drones.drone.reporter;
 
+import com.github.bikeholik.drones.common.TrafficInfo;
+
 public interface TrafficReporter {
-    void report(Object o);
+    void report(TrafficInfo trafficInfo);
 }

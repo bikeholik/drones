@@ -14,18 +14,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Slf4j
 class MovesDispatchedEventListener implements ApplicationContextAware {
-    private final AtomicInteger noMoreMovesCounter = new AtomicInteger(-1);
+    private final AtomicInteger noMoreMovesStrikeCounter = new AtomicInteger(-1);
     private ApplicationContext applicationContext;
 
     @EventListener
     @Async
     public void handle(MovesDispatchedEvent event) {
-        log.debug("{}", event.getSource());
+        MovesDispatchedEventDetails details = event.getDetails();
+        log.info("{} moves sent to drone {}", details.getMovesCount(), details.getDroneId());
 
-        if (anyMovesDispatched(event)) {
-            noMoreMovesCounter.set(0);
+        if (anyMovesDispatched(details)) {
+            noMoreMovesStrikeCounter.set(0);
         } else {
-            if (noMoreMovesCounter.get() >= 0 && noMoreMovesCounter.incrementAndGet() > 5) {
+            if (shouldInterrupt()) {
                 log.debug("Closing application...");
                 if (applicationContext instanceof ConfigurableApplicationContext) {
                     ((ConfigurableApplicationContext) applicationContext).close();
@@ -36,8 +37,12 @@ class MovesDispatchedEventListener implements ApplicationContextAware {
         }
     }
 
-    private boolean anyMovesDispatched(MovesDispatchedEvent event) {
-        return event.getDetails().getMovesCount() > 0;
+    private boolean shouldInterrupt() {
+        return noMoreMovesStrikeCounter.get() >= 0 && noMoreMovesStrikeCounter.incrementAndGet() > 5;
+    }
+
+    private boolean anyMovesDispatched(MovesDispatchedEventDetails event) {
+        return event.getMovesCount() > 0;
     }
 
     @Override

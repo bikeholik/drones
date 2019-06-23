@@ -13,5 +13,5 @@ public interface MoveRepository {
                     "(select * from drone_location where drone_id = :droneId and id > :from order by id asc limit :maxSize) dl left join station s " +
                     "on ST_Distance_Sphere(Point(dl.latitude, dl.longitude), Point(s.latitude, s.longitude)) < :maxRange " +
                     "group by dl.latitude, dl.longitude, dl.id")
-    List<Move> getMoves(@Param("droneId") Long droneId, @Param("from") Long from, @Param("maxSize") Integer maxSize, @Param("maxRange") Integer maxRange);
+    List<Move> getMoves(@Param("droneId") Long droneId, @Param("from") Long fromMoveId, @Param("maxSize") Integer maxSize, @Param("maxRange") Integer maxRange);
 }
