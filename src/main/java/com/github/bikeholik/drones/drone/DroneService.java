@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,6 +44,7 @@ class DroneService {
                         .droneSpeed(droneTaskProperties.getSpeed())
                         .stationsNearby(stations)
                         .trafficConditions(getTrafficConditions())
+                        .timestamp(OffsetDateTime.now())
                         .build())
                 .ifPresent(trafficReporter::report);
     }

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 class LoggingTrafficReporter implements TrafficReporter {
     @Override
     public void report(TrafficInfo trafficInfo) {
-        log.info("{}", trafficInfo);
+        log.debug("New traffic information {}", trafficInfo);
     }
 }
