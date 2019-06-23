@@ -86,7 +86,7 @@ class DataInitializer {
         try{
             return Stream.of(mapper.apply(chunks));
         }catch (Exception e){
-            log.error("Error parsing: '{}'", chunks, e);
+            log.warn("Error parsing: '{}'", chunks, e);
             return Stream.empty();
         }
     }
